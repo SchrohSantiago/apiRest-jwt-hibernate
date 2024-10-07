@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +28,13 @@ public class ProductController {
 //    private ProductValidator validation;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','USER')") // Tenemos preAuthorize que es basicamente antes de que se ejecute el endpoint, y post authorize despues del endpoint.
     public List<Product> list() {
         return productService.findAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<?> view(@PathVariable Long id) {
         Optional<Product> productOptional = productService.findById(id);
         if(productOptional.isPresent()){
@@ -41,6 +44,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result){ // BINDINGRESULT obtiene todos los errores
 //        validation.validate(product,result);
         if (result.hasFieldErrors()){
@@ -50,6 +54,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id,@Valid @RequestBody Product product, BindingResult result) {
 //        validation.validate(product,result);
         if (result.hasFieldErrors()){
@@ -64,6 +69,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Optional<Product> productOptional = productService.delete(id);
         if(productOptional.isPresent()){
